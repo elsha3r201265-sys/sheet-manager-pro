@@ -131,6 +131,8 @@
             margin-bottom: 30px;
             border: 1px solid var(--border-color);
             animation: slideDown 0.3s ease-out;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         @keyframes slideDown {
@@ -178,7 +180,8 @@
         }
 
         .form-group input,
-        .form-group select {
+        .form-group select,
+        .form-group textarea {
             padding: 10px 12px;
             background-color: var(--bg-tertiary);
             border: 1px solid var(--border-color);
@@ -187,22 +190,31 @@
             color: var(--text-primary);
             outline: none;
             transition: all 0.2s;
+            font-family: inherit;
         }
 
         .form-group input:focus,
-        .form-group select:focus {
+        .form-group select:focus,
+        .form-group textarea:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 8px rgba(88, 166, 255, 0.2);
         }
 
-        .form-group input::placeholder {
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
             color: var(--text-secondary);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
         }
 
         .form-actions {
             display: flex;
             gap: 10px;
             justify-content: flex-start;
+            flex-wrap: wrap;
         }
 
         /* الأزرار الستايل العام */
@@ -299,6 +311,7 @@
             text-transform: uppercase;
             font-size: 12px;
             letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
         td {
@@ -398,6 +411,14 @@
                 width: 100%;
                 min-width: auto;
             }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px 10px;
+            }
         }
     </style>
 </head>
@@ -452,62 +473,66 @@
         banio: {
             title: "قسم بانيو",
             fields: [
-                { id: "customerName", label: "اسم العميل", type: "text" },
-                { id: "problemId", label: "رقم المشكلة", type: "text" },
-                { id: "techName", label: "اسم الفني", type: "text" },
-                { id: "partCode", label: "كود القطعة", type: "text" },
-                { id: "quantity", label: "الكمية", type: "number" },
-                { id: "reason", label: "السبب", type: "text" },
-                { id: "previewDate", label: "تاريخ المعاينة", type: "date" },
-                { id: "status", label: "الحالة", type: "text" }
+                { id: "techName", label: "اسم الفني", type: "text", required: true },
+                { id: "model", label: "الموديل", type: "text", required: true },
+                { id: "code", label: "الكود", type: "text", required: true },
+                { id: "quantity", label: "الكمية", type: "number", required: true },
+                { id: "reason", label: "السبب", type: "select", options: ["بيع", "بدل", "بيع بخصم"], required: true },
+                { id: "inspectionDate", label: "تاريخ المعاينة", type: "date", required: true },
+                { id: "notes", label: "ملاحظات", type: "textarea" },
+                { id: "exitDate", label: "تاريخ الخروج", type: "date" }
             ]
         },
         khalatat: {
             title: "قسم خلاطات",
             fields: [
-                { id: "customerName", label: "اسم العميل", type: "text" },
-                { id: "orderId", label: "الاوردر", type: "text" },
-                { id: "techName", label: "اسم الفني", type: "text" },
-                { id: "category", label: "الصنف", type: "text" },
-                { id: "code", label: "كود", type: "text" },
-                { id: "quantity", label: "الكمية", type: "number" },
+                { id: "customerName", label: "اسم العميل", type: "text", required: true },
+                { id: "orderId", label: "الاوردر", type: "text", required: true },
+                { id: "techName", label: "اسم الفني", type: "text", required: true },
+                { id: "code", label: "الكود", type: "text", required: true },
+                { id: "quantity", label: "الكمية", type: "number", required: true },
                 { id: "reason", label: "السبب", type: "text" },
+                { id: "inspectionDate", label: "تاريخ المعاينة", type: "date" },
                 { id: "exitDate", label: "تاريخ الخروج", type: "date" },
-                { id: "group", label: "المجموعة", type: "text" }
+                { id: "group", label: "المجموعة", type: "text" },
+                { id: "notes", label: "ملاحظات", type: "textarea" }
             ]
         },
         mobilia: {
             title: "قسم موبيليا",
             fields: [
-                { id: "customerName", label: "اسم العميل", type: "text" },
-                { id: "problemId", label: "رقم المشكلة", type: "text" },
-                { id: "techName", label: "اسم الفني", type: "text" },
-                { id: "itemDetails", label: "بيان الصنف", type: "text" },
-                { id: "partCode", label: "كود القطعة", type: "text" },
-                { id: "quantity", label: "الكمية", type: "number" },
+                { id: "customerName", label: "اسم العميل", type: "text", required: true },
+                { id: "problemId", label: "رقم المشكلة", type: "text", required: true },
+                { id: "techName", label: "اسم الفني", type: "text", required: true },
+                { id: "itemDetails", label: "بيان الصنف", type: "text", required: true },
+                { id: "code", label: "الكود", type: "text", required: true },
+                { id: "quantity", label: "الكمية", type: "number", required: true },
                 { id: "unitCode", label: "كود الوحدة", type: "text" },
-                { id: "status", label: "الحالة", type: "text" }
+                { id: "notes", label: "ملاحظات", type: "textarea" }
             ]
         },
         database: {
             title: "قاعدة البيانات",
             fields: [
-                { id: "group", label: "المجموعة", type: "text" },
-                { id: "category", label: "الصنف", type: "text" },
-                { id: "typeCode", label: "كود الصنف", type: "text" },
-                { id: "price", label: "السعر", type: "number" }
+                { id: "price", label: "السعر", type: "number", required: true },
+                { id: "typeCode", label: "كود الصنف", type: "text", required: true },
+                { id: "category", label: "الصنف", type: "text", required: true },
+                { id: "group", label: "المجموعة", type: "text", required: true }
             ]
         },
         seeny: {
             title: "قسم صيني",
             fields: [
-                { id: "customerName", label: "اسم العميل", type: "text" },
-                { id: "problemId", label: "رقم المشكلة", type: "text" },
-                { id: "techName", label: "اسم الفني", type: "text" },
-                { id: "itemDetails", label: "بيان الصنف", type: "text" },
-                { id: "code", label: "الكود", type: "text" },
-                { id: "quantity", label: "الكمية", type: "number" },
-                { id: "inStorage", label: "في المخزن", type: "select", options: ["متوفر", "غير متوفر"] }
+                { id: "customerName", label: "اسم العميل", type: "text", required: true },
+                { id: "orderId", label: "الاوردر", type: "text", required: true },
+                { id: "techName", label: "اسم الفني", type: "text", required: true },
+                { id: "code", label: "الكود", type: "text", required: true },
+                { id: "quantity", label: "الكمية", type: "number", required: true },
+                { id: "reason", label: "السبب", type: "text" },
+                { id: "inspectionDate", label: "تاريخ المعاينة", type: "date" },
+                { id: "exitDate", label: "تاريخ الخروج", type: "date" },
+                { id: "group", label: "المجموعة", type: "text" },
+                { id: "notes", label: "ملاحظات", type: "textarea" }
             ]
         }
     };
@@ -565,21 +590,33 @@
 
         fieldsContainer.innerHTML = schema[currentSection].fields
             .map(field => {
+                const requiredAttr = field.required ? "required" : "";
+                
                 if (field.type === "select") {
                     return `
                         <div class="form-group">
                             <label for="${field.id}">${field.label}</label>
-                            <select id="${field.id}" name="${field.id}">
+                            <select id="${field.id}" name="${field.id}" ${requiredAttr}>
                                 <option value="">-- اختر --</option>
                                 ${field.options.map(opt => `<option value="${opt}">${opt}</option>`).join("")}
                             </select>
                         </div>
                     `;
                 }
+                
+                if (field.type === "textarea") {
+                    return `
+                        <div class="form-group">
+                            <label for="${field.id}">${field.label}</label>
+                            <textarea id="${field.id}" name="${field.id}" placeholder="${field.label}" ${requiredAttr}></textarea>
+                        </div>
+                    `;
+                }
+                
                 return `
                     <div class="form-group">
                         <label for="${field.id}">${field.label}</label>
-                        <input type="${field.type}" id="${field.id}" name="${field.id}" placeholder="${field.label}" required>
+                        <input type="${field.type}" id="${field.id}" name="${field.id}" placeholder="${field.label}" ${requiredAttr}>
                     </div>
                 `;
             })
@@ -650,7 +687,13 @@
             tableBody.innerHTML = data
                 .map((row, index) => `
                     <tr>
-                        ${fields.map(f => `<td>${row[f.id] || "-"}</td>`).join("")}
+                        ${fields.map(f => {
+                            let value = row[f.id] || "-";
+                            if (f.type === "textarea" && value.length > 50) {
+                                value = value.substring(0, 50) + "...";
+                            }
+                            return `<td>${value}</td>`;
+                        }).join("")}
                         <td class="action-td">
                             <button class="btn btn-info btn-sm" onclick="editRow(${index})">✏️ تعديل</button>
                             <button class="btn btn-danger btn-sm" onclick="deleteRow(${index})">🗑️ حذف</button>
@@ -672,11 +715,13 @@
 
         fieldsContainer.innerHTML = schema[currentSection].fields
             .map(field => {
+                const requiredAttr = field.required ? "required" : "";
+                
                 if (field.type === "select") {
                     return `
                         <div class="form-group">
                             <label for="${field.id}">${field.label}</label>
-                            <select id="${field.id}" name="${field.id}">
+                            <select id="${field.id}" name="${field.id}" ${requiredAttr}>
                                 ${field.options.map(opt => `
                                     <option value="${opt}" ${row[field.id] === opt ? "selected" : ""}>${opt}</option>
                                 `).join("")}
@@ -684,10 +729,20 @@
                         </div>
                     `;
                 }
+                
+                if (field.type === "textarea") {
+                    return `
+                        <div class="form-group">
+                            <label for="${field.id}">${field.label}</label>
+                            <textarea id="${field.id}" name="${field.id}" placeholder="${field.label}" ${requiredAttr}>${row[field.id] || ""}</textarea>
+                        </div>
+                    `;
+                }
+                
                 return `
                     <div class="form-group">
                         <label for="${field.id}">${field.label}</label>
-                        <input type="${field.type}" id="${field.id}" name="${field.id}" value="${row[field.id] || ""}" placeholder="${field.label}" required>
+                        <input type="${field.type}" id="${field.id}" name="${field.id}" value="${row[field.id] || ""}" placeholder="${field.label}" ${requiredAttr}>
                     </div>
                 `;
             })
@@ -716,7 +771,13 @@
         const fields = schema[currentSection].fields;
         const csv = [
             fields.map(f => f.label).join(","),
-            ...data.map(row => fields.map(f => `"${row[f.id] || ""}"`).join(","))
+            ...data.map(row => fields.map(f => {
+                let value = row[f.id] || "";
+                if (value.includes(",") || value.includes('"') || value.includes("\n")) {
+                    value = `"${value.replace(/"/g, '""')}"`;
+                }
+                return value;
+            }).join(","))
         ].join("\n");
 
         const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
