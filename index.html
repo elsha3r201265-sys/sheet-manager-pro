@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة الأقسام والبيانات</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --border-color: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --primary-color: #58a6ff;
+            --success-color: #3fb950;
+            --danger-color: #f85149;
+            --warning-color: #d29922;
+            --info-color: #79c0ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 10px rgba(88, 166, 255, 0.3);
+        }
+
+        /* قسم أزرار الأقسام */
+        .section-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            padding: 15px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-nav {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-nav:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-nav.active {
+            background-color: var(--primary-color);
+            color: var(--bg-primary);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.4);
+        }
+
+        /* أدوات التحكم والبحث */
+        .controls-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 15px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .search-bar {
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 14px;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-bar input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* حاوية النموذج */
+        .form-container {
+            display: none;
+            background: var(--bg-secondary);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-container.active {
+            display: block;
+        }
+
+        .form-container h3 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+            font-size: 1.3rem;
+        }
+
+        .dynamic-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px 12px;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 8px rgba(88, 166, 255, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-start;
+        }
+
+        /* الأزرار الستايل العام */
+        .btn {
+            padding: 11px 20px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+        }
+
+        .btn-success:hover {
+            background-color: #2ea043;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+            border-color: var(--danger-color);
+        }
+
+        .btn-danger:hover {
+            background-color: #da3633;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: #000;
+            border-color: var(--warning-color);
+        }
+
+        .btn-warning:hover {
+            background-color: #c29a2e;
+        }
+
+        .btn-add {
+            background-color: var(--primary-color);
+            color: var(--bg-primary);
+            border-color: var(--primary-color);
+        }
+
+        .btn-add:hover {
+            background-color: #79c0ff;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        .btn-info {
+            background-color: var(--info-color);
+            color: var(--bg-primary);
+            border-color: var(--info-color);
+        }
+
+        /* الجداول */
+        .table-container {
+            overflow-x: auto;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            padding: 15px;
+            text-align: right;
+            background-color: var(--bg-tertiary);
+            color: var(--primary-color);
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        tbody tr {
+            transition: all 0.2s;
+        }
+
+        tbody tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .action-td {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-start;
+        }
+
+        /* رسالة فارغة */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            animation: slideIn 0.3s ease-out;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            background-color: var(--success-color);
+        }
+
+        .toast.danger {
+            background-color: var(--danger-color);
+        }
+
+        .toast.warning {
+            background-color: var(--warning-color);
+            color: #000;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .dynamic-fields {
+                grid-template-columns: 1fr;
+            }
+
+            .section-buttons {
+                flex-direction: column;
+            }
+
+            .btn-nav {
+                width: 100%;
+            }
+
+            .controls-container {
+                flex-direction: column;
+            }
+
+            .search-bar {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 id="page-title">📊 نظام إدارة البيانات</h1>
+
+    <!-- أزرار الأقسام العلوية -->
+    <div class="section-buttons">
+        <button id="btn-banio" class="btn-nav active" onclick="switchSection('banio')">🛁 بانيو</button>
+        <button id="btn-khalatat" class="btn-nav" onclick="switchSection('khalatat')">🚰 خلاطات</button>
+        <button id="btn-mobilia" class="btn-nav" onclick="switchSection('mobilia')">🪑 موبيليا</button>
+        <button id="btn-database" class="btn-nav" onclick="switchSection('database')">💾 قاعدة البيانات</button>
+        <button id="btn-seeny" class="btn-nav" onclick="switchSection('seeny')">🍽️ صيني</button>
+    </div>
+
+    <!-- شريط البحث والإضافة -->
+    <div class="controls-container">
+        <div class="search-bar">
+            <input type="text" id="globalSearch" oninput="renderTable()" placeholder="🔍 ابحث في جميع الأعمدة...">
+        </div>
+        <button class="btn btn-add" onclick="showAddForm()">➕ إضافة سجل جديد</button>
+        <button class="btn btn-info" onclick="exportData()">📥 تنزيل البيانات</button>
+    </div>
+
+    <!-- نموذج الإضافة والتعديل -->
+    <div class="form-container" id="formWrapper">
+        <h3 id="form-title">إضافة بيان جديد</h3>
+        <form id="crudForm" onsubmit="saveData(event)">
+            <input type="hidden" id="editIndex" value="-1">
+            <div class="dynamic-fields" id="fieldsContainer"></div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success">💾 حفظ البيانات</button>
+                <button type="button" class="btn btn-danger" onclick="closeForm()">❌ إلغاء</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- جدول البيانات -->
+    <div class="table-container">
+        <table id="dataTable">
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // ============ SCHEMA FOR ALL SECTIONS ============
+    const schema = {
+        banio: {
+            title: "قسم بانيو",
+            fields: [
+                { id: "customerName", label: "اسم العميل", type: "text" },
+                { id: "problemId", label: "رقم المشكلة", type: "text" },
+                { id: "techName", label: "اسم الفني", type: "text" },
+                { id: "partCode", label: "كود القطعة", type: "text" },
+                { id: "quantity", label: "الكمية", type: "number" },
+                { id: "reason", label: "السبب", type: "text" },
+                { id: "previewDate", label: "تاريخ المعاينة", type: "date" },
+                { id: "status", label: "الحالة", type: "text" }
+            ]
+        },
+        khalatat: {
+            title: "قسم خلاطات",
+            fields: [
+                { id: "customerName", label: "اسم العميل", type: "text" },
+                { id: "orderId", label: "الاوردر", type: "text" },
+                { id: "techName", label: "اسم الفني", type: "text" },
+                { id: "category", label: "الصنف", type: "text" },
+                { id: "code", label: "كود", type: "text" },
+                { id: "quantity", label: "الكمية", type: "number" },
+                { id: "reason", label: "السبب", type: "text" },
+                { id: "exitDate", label: "تاريخ الخروج", type: "date" },
+                { id: "group", label: "المجموعة", type: "text" }
+            ]
+        },
+        mobilia: {
+            title: "قسم موبيليا",
+            fields: [
+                { id: "customerName", label: "اسم العميل", type: "text" },
+                { id: "problemId", label: "رقم المشكلة", type: "text" },
+                { id: "techName", label: "اسم الفني", type: "text" },
+                { id: "itemDetails", label: "بيان الصنف", type: "text" },
+                { id: "partCode", label: "كود القطعة", type: "text" },
+                { id: "quantity", label: "الكمية", type: "number" },
+                { id: "unitCode", label: "كود الوحدة", type: "text" },
+                { id: "status", label: "الحالة", type: "text" }
+            ]
+        },
+        database: {
+            title: "قاعدة البيانات",
+            fields: [
+                { id: "group", label: "المجموعة", type: "text" },
+                { id: "category", label: "الصنف", type: "text" },
+                { id: "typeCode", label: "كود الصنف", type: "text" },
+                { id: "price", label: "السعر", type: "number" }
+            ]
+        },
+        seeny: {
+            title: "قسم صيني",
+            fields: [
+                { id: "customerName", label: "اسم العميل", type: "text" },
+                { id: "problemId", label: "رقم المشكلة", type: "text" },
+                { id: "techName", label: "اسم الفني", type: "text" },
+                { id: "itemDetails", label: "بيان الصنف", type: "text" },
+                { id: "code", label: "الكود", type: "text" },
+                { id: "quantity", label: "الكمية", type: "number" },
+                { id: "inStorage", label: "في المخزن", type: "select", options: ["متوفر", "غير متوفر"] }
+            ]
+        }
+    };
+
+    let currentSection = "banio";
+    let allData = loadAllData();
+
+    // ============ LOCAL STORAGE FUNCTIONS ============
+    function loadAllData() {
+        const saved = localStorage.getItem("sheetManagerData");
+        if (saved) {
+            return JSON.parse(saved);
+        }
+        return {
+            banio: [],
+            khalatat: [],
+            mobilia: [],
+            database: [],
+            seeny: []
+        };
+    }
+
+    function saveAllData() {
+        localStorage.setItem("sheetManagerData", JSON.stringify(allData));
+        showToast("✅ تم حفظ البيانات بنجاح", "success");
+    }
+
+    // ============ TOAST NOTIFICATIONS ============
+    function showToast(message, type = "success") {
+        const toast = document.createElement("div");
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    // ============ SECTION SWITCHING ============
+    function switchSection(section) {
+        currentSection = section;
+        document.querySelectorAll(".btn-nav").forEach(btn => btn.classList.remove("active"));
+        document.getElementById(`btn-${section}`).classList.add("active");
+        document.getElementById("globalSearch").value = "";
+        closeForm();
+        renderTable();
+    }
+
+    // ============ FORM FUNCTIONS ============
+    function showAddForm() {
+        const formWrapper = document.getElementById("formWrapper");
+        const fieldsContainer = document.getElementById("fieldsContainer");
+        const formTitle = document.getElementById("form-title");
+        document.getElementById("editIndex").value = "-1";
+
+        formTitle.textContent = `إضافة بيان جديد - ${schema[currentSection].title}`;
+
+        fieldsContainer.innerHTML = schema[currentSection].fields
+            .map(field => {
+                if (field.type === "select") {
+                    return `
+                        <div class="form-group">
+                            <label for="${field.id}">${field.label}</label>
+                            <select id="${field.id}" name="${field.id}">
+                                <option value="">-- اختر --</option>
+                                ${field.options.map(opt => `<option value="${opt}">${opt}</option>`).join("")}
+                            </select>
+                        </div>
+                    `;
+                }
+                return `
+                    <div class="form-group">
+                        <label for="${field.id}">${field.label}</label>
+                        <input type="${field.type}" id="${field.id}" name="${field.id}" placeholder="${field.label}" required>
+                    </div>
+                `;
+            })
+            .join("");
+
+        formWrapper.classList.add("active");
+    }
+
+    function closeForm() {
+        document.getElementById("formWrapper").classList.remove("active");
+        document.getElementById("crudForm").reset();
+    }
+
+    function saveData(event) {
+        event.preventDefault();
+        const editIndex = parseInt(document.getElementById("editIndex").value);
+        const formData = new FormData(document.getElementById("crudForm"));
+        const data = Object.fromEntries(formData);
+
+        if (editIndex >= 0) {
+            allData[currentSection][editIndex] = data;
+            showToast("✏️ تم تحديث البيانات", "success");
+        } else {
+            allData[currentSection].push(data);
+            showToast("➕ تم إضافة سجل جديد", "success");
+        }
+
+        saveAllData();
+        closeForm();
+        renderTable();
+    }
+
+    // ============ TABLE FUNCTIONS ============
+    function renderTable() {
+        const searchTerm = document.getElementById("globalSearch").value.toLowerCase();
+        let data = allData[currentSection];
+
+        if (searchTerm) {
+            data = data.filter(row =>
+                Object.values(row).some(value =>
+                    String(value).toLowerCase().includes(searchTerm)
+                )
+            );
+        }
+
+        const tableHead = document.getElementById("tableHead");
+        const tableBody = document.getElementById("tableBody");
+        const fields = schema[currentSection].fields;
+
+        // Render Header
+        tableHead.innerHTML = `
+            <tr>
+                ${fields.map(f => `<th>${f.label}</th>`).join("")}
+                <th style="min-width: 150px;">الإجراءات</th>
+            </tr>
+        `;
+
+        // Render Body
+        if (data.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="${fields.length + 1}" class="empty-state">
+                        <p>📭 لا توجد بيانات في هذا القسم</p>
+                    </td>
+                </tr>
+            `;
+        } else {
+            tableBody.innerHTML = data
+                .map((row, index) => `
+                    <tr>
+                        ${fields.map(f => `<td>${row[f.id] || "-"}</td>`).join("")}
+                        <td class="action-td">
+                            <button class="btn btn-info btn-sm" onclick="editRow(${index})">✏️ تعديل</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteRow(${index})">🗑️ حذف</button>
+                        </td>
+                    </tr>
+                `)
+                .join("");
+        }
+    }
+
+    function editRow(index) {
+        const row = allData[currentSection][index];
+        const formWrapper = document.getElementById("formWrapper");
+        const fieldsContainer = document.getElementById("fieldsContainer");
+        const formTitle = document.getElementById("form-title");
+        document.getElementById("editIndex").value = index;
+
+        formTitle.textContent = `تعديل البيان - ${schema[currentSection].title}`;
+
+        fieldsContainer.innerHTML = schema[currentSection].fields
+            .map(field => {
+                if (field.type === "select") {
+                    return `
+                        <div class="form-group">
+                            <label for="${field.id}">${field.label}</label>
+                            <select id="${field.id}" name="${field.id}">
+                                ${field.options.map(opt => `
+                                    <option value="${opt}" ${row[field.id] === opt ? "selected" : ""}>${opt}</option>
+                                `).join("")}
+                            </select>
+                        </div>
+                    `;
+                }
+                return `
+                    <div class="form-group">
+                        <label for="${field.id}">${field.label}</label>
+                        <input type="${field.type}" id="${field.id}" name="${field.id}" value="${row[field.id] || ""}" placeholder="${field.label}" required>
+                    </div>
+                `;
+            })
+            .join("");
+
+        formWrapper.classList.add("active");
+    }
+
+    function deleteRow(index) {
+        if (confirm("هل أنت متأكد من حذف هذا السجل؟")) {
+            allData[currentSection].splice(index, 1);
+            saveAllData();
+            renderTable();
+            showToast("🗑️ تم حذف السجل", "danger");
+        }
+    }
+
+    // ============ EXPORT FUNCTIONS ============
+    function exportData() {
+        const data = allData[currentSection];
+        if (data.length === 0) {
+            showToast("❌ لا توجد بيانات للتنزيل", "warning");
+            return;
+        }
+
+        const fields = schema[currentSection].fields;
+        const csv = [
+            fields.map(f => f.label).join(","),
+            ...data.map(row => fields.map(f => `"${row[f.id] || ""}"`).join(","))
+        ].join("\n");
+
+        const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `${currentSection}_${new Date().getTime()}.csv`);
+        link.click();
+        showToast("✅ تم تنزيل البيانات", "success");
+    }
+
+    // ============ INITIALIZE ============
+    window.addEventListener("load", () => {
+        renderTable();
+    });
+</script>
+
+</body>
+</html>
